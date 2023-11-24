@@ -1,13 +1,15 @@
 import math
+import time
 
 # from IPython.display import display, Math, Latex
 
 # Destination for files:
-DEST = '/Users/georgfrenck/sciebo/Math/Teaching/2023 WS/Softwarepraktikum/triangulations-of-surfaces/input/'
+DEST = '/Users/frenckge/Documents/Teaching/WiSe 2023/Softwareprojekt/triangulations-of-surfaces/input/'
 
 # size of the circles:
-n=6 # points on line
-m=16 # points on circles
+n=6                    # points on line
+m=20                    # points on circles
+r=5                     # number of rotations
 
 
 # Size of the canvas:
@@ -26,8 +28,8 @@ precision=0
 
 
 
-r_big=5    # radius of circle
-r_small=1  # length of line
+radius_mid_circle=5    # radius of circle
+length_fiber=1.5  # length of line
 
 delta_0=[]
 delta_1=[]
@@ -39,27 +41,27 @@ delta_2=[]
 # print(p_left)
 # print(p_right)
 
-def create_delta_0 (num_n, num_m):
+def create_delta_0 (num_n, num_m, num_r):
     global delta_0
     delta_0=[]
     mid=[]
 
     for i in range(num_m):
-        scale_temp=scale/(2*(r_big+r_small))
-        x=round(scale_temp*math.cos(2*math.pi*i/num_m)*r_big)
-        y=round(scale_temp*math.sin(2*math.pi*i/num_m)*r_big)
+        scale_temp=scale/(2*(radius_mid_circle+length_fiber))
+        x=round(scale_temp*math.cos(2*math.pi*i/num_m)*radius_mid_circle)
+        y=round(scale_temp*math.sin(2*math.pi*i/num_m)*radius_mid_circle)
         mid.append([x,y,0])
 
 
     for i in range(num_n):
-        # outermost points are (-r_big-r_small,0,0) and (r_big+ r_small,0,0)
+        # outermost points are (-radius_mid_circle-length_fiber,0,0) and (radius_mid_circle+ length_fiber,0,0)
         # hence scaling to be smaler then scale/2
 
-        scale_temp=scale/(2*(r_big+r_small))
+        scale_temp=scale/(2*(radius_mid_circle+length_fiber))
         
-        if num_n>1: height=scale_temp*(-r_small+2*r_small*i/(num_n-1))
+        if num_n>1: height=scale_temp*(-length_fiber+2*length_fiber*i/(num_n-1))
         if num_n==1: height=0
-        x=round(scale_temp*r_big)
+        x=round(scale_temp*radius_mid_circle)
         y=0
         z=round(height,precision)
         if precision==0:
@@ -72,8 +74,8 @@ def create_delta_0 (num_n, num_m):
     sin=[]
 
     for i in range(num_m-1):
-        cos=math.cos(math.pi*(i+1)/num_m)
-        sin=math.sin(math.pi*(i+1)/num_m)
+        cos=math.cos(num_r*math.pi*(i+1)/num_m)
+        sin=math.sin(num_r*math.pi*(i+1)/num_m)
         norm=math.sqrt(mid[i+1][1]*mid[i+1][1] + mid[i+1][0]*mid[i+1][0])
         n_1=-mid[i+1][1]/norm
         n_2=mid[i+1][0]/norm
@@ -102,7 +104,7 @@ def create_delta_0 (num_n, num_m):
 
 
 
-def create_delta_1(num_n, num_m):
+def create_delta_1(num_n, num_m,num_r):
     global delta_1
     delta_1=[]
 
@@ -111,14 +113,30 @@ def create_delta_1(num_n, num_m):
     for i in range(num_m):
         for j in range(num_n-1):
             delta_1.append([num_n*(i) + j, num_n*(i) + j + 1])
-            delta_1.append([num_n*(i) + j, (num_n*(i) + j + num_n + 1)%(num_n*num_m)])
 
     # add large circles
 
-    for i in range(num_m):
-        for j in range(num_n):
-            delta_1.append([num_n*(i) + j, (num_n*(i) + (j + num_n))%(num_n*num_m)])
+    for i in range(num_m-1):
+        for j in range(num_n-1):
+            delta_1.append([num_n*(i) + j, (num_n*(i) + j + num_n)%(num_n*num_m)])
+            delta_1.append([num_n*(i) + j, (num_n*(i) + j + num_n + 1)%(num_n*num_m)])
+        delta_1.append([num_n*(i) + num_n-1, (num_n*(i) + num_n-1+ num_n)%(num_n*num_m)])
 
+    sign=(num_r%2)
+
+    for j in range(num_n-1):
+        if sign==0:
+            delta_1.append([num_n*(num_m-1) + j, j])
+            delta_1.append([num_n*(num_m-1) + j, j+1])
+        else:
+            delta_1.append([num_n*(num_m-1) + j, num_n-1-j])
+            delta_1.append([num_n*(num_m-1) + j, num_n-2-j])
+            
+    
+    if sign==0:
+        delta_1.append([num_n*num_m-1, num_n-1])
+    else:
+        delta_1.append([num_n*num_m-1, 0])
 
 # Find 2 simplices comment if not absolutely necessary
 
@@ -149,8 +167,8 @@ def create_delta_2(prod_nm):
 
 # Print points for plotting in grapher:
 
-def print_for_grapher(num_n,num_m):
-    create_delta_0(num_n,num_m)
+def print_for_grapher(num_n,num_m, num_r):
+    create_delta_0(num_n,num_m,num_r)
     string=''
     count=0
     for i in delta_0:
@@ -158,10 +176,10 @@ def print_for_grapher(num_n,num_m):
             string= string + '{} '.format(a)
         string+="\n"
     # print(string.replace('.',','))
-    title='{}moebiusband_{}_{}.txt'.format(DEST,num_n,num_m)
+    title='{}grapher_moebiusband_{}_{}_{}.txt'.format(DEST,num_n,num_m,num_r)
     f=open(title,'w')
     f.write(string.replace('.',','))
-    f=open(title,'w')
+    print(string)
 
 # Print 0-simplices
 
@@ -173,7 +191,7 @@ def print_delta_0():
     print('')
 
 
-# # Print 1-simplices
+# Print 1-simplices
 
 def print_delta_1():
     print('delta_1=[')
@@ -183,7 +201,7 @@ def print_delta_1():
     print('')
 
 
-# # Print 2-simplices
+# Print 2-simplices
 
 def print_delta_2():
     print('delta_2=[')
@@ -195,10 +213,12 @@ def print_delta_2():
 
 # create_delta_0(n,m)
 
-def create_and_print(points_on_fiber_line,number_of_fibers):
+def create_and_print(points_on_fiber_line,number_of_fibers,number_of_rotations):
 
-    create_delta_0(points_on_fiber_line,number_of_fibers)
-    create_delta_1(points_on_fiber_line,number_of_fibers)
+    start=time.time()
+
+    create_delta_0(points_on_fiber_line,number_of_fibers, number_of_rotations)
+    create_delta_1(points_on_fiber_line,number_of_fibers,number_of_rotations)
     create_delta_2(points_on_fiber_line*number_of_fibers)
 
     # The following only works for n,m<=10 or so, otherwise the terminal erases stuff.
@@ -218,7 +238,7 @@ def create_and_print(points_on_fiber_line,number_of_fibers):
     # print()
     # print()
 
-    title='{}moebiusband_{}_{}.txt'.format(DEST,points_on_fiber_line,number_of_fibers)
+    title='{}moebiusband_{}_{}_{}.txt'.format(DEST,points_on_fiber_line,number_of_fibers,number_of_rotations)
     f=open(title,'w')
     str_delta_0='delta_0=[\n '
     for a in delta_0:
@@ -236,18 +256,26 @@ def create_and_print(points_on_fiber_line,number_of_fibers):
     str_delta_2=str_delta_2+']\n'
     f.write('{}\n\n{}\n\n{}'.format(str_delta_0,str_delta_1,str_delta_2))
 
+    end = time.time()
+    time_taken=end-start
+    time_taken_minutes = math.floor(time_taken/60)
+    time_taken_seconds = math.floor(time_taken%60)
+
     print()
-    print('The data for a triangulation of the Moebius band with {} 0-simplices, {} 1-simplices and {} 2-simplices has been created in {}'.format(len(delta_0),len(delta_1),len(delta_2),f))
+    print('The data for a triangulation of the {}-times rotated Moebius band with {} 0-simplices, {} 1-simplices and {} 2-simplices has been created in {}'.format(number_of_rotations,len(delta_0),len(delta_1),len(delta_2),f))
     print()
     print('Observe, that the Euler-Characteristic is given by {}'.format(len(delta_0)-len(delta_1)+len(delta_2)))
     print()
+    print('By the way, this took {} minutes and {} seconds.'.format(time_taken_minutes,time_taken_seconds))
+    print()
     print()
 
 
 
 
-create_and_print(n,m)
-print_for_grapher(n,m)
+create_and_print(n,m,r)
+# print_for_grapher(n,m,r)
+
 
 # create_and_print(8,8,2)
 # create_and_print(8,8,3)
