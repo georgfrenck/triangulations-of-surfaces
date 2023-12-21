@@ -17,7 +17,7 @@ genus=0
 
 
 # Size of the canvas:
-scale=600
+scale=350
 
 
 # number of decimal places
@@ -92,6 +92,7 @@ def create_delta_0 (num_n, num_m,num_g):
                 x_temp=int(x_temp)
             delta_0.append([x_temp,delta_0[j][1],delta_0[j][2]])
     delta_0 = delta_0[num_m*num_n:]
+    
 
 
 
@@ -187,36 +188,52 @@ def create_delta_0_sphere(num_equator, num_meridian):
     if(precision==0):
         scale_half=int(scale_half)
 
+    
+    for h in range(2):
+        for i in range(num_meridian):
+            cos=math.cos(2*math.pi*(i+1)/num_meridian)
+            sin=math.sin(2*math.pi*(i+1)/num_meridian)
 
+            height_mid=int((2*h-1)*scale/2*math.sin((1/2)*math.pi*(5-num_equator)/(num_equator+1)))
+
+            for j in range(num_equator):
+                j_temp = 2*(j)-num_equator +1
+                scale_temp=(scale/2)*math.cos((1/2)*math.pi*(j_temp)/(num_equator+1))
+                height=scale/2*math.sin((1/2)*math.pi*(j_temp)/(num_equator+1))
+                x=round(cos*scale_temp,precision)
+                y=round(sin*scale_temp,precision)
+                z=height+height_mid
+                if precision==0:
+                    x=int(x)
+                    y=int(y)
+                    z=int(z)
+                delta_0.append([x,y,z])  
+            delta_0.append([0,0,-scale_half+height_mid])
+            delta_0.append([0,0,scale_half+height_mid])
     for i in range(num_meridian):
         cos=math.cos(2*math.pi*(i+1)/num_meridian)
         sin=math.sin(2*math.pi*(i+1)/num_meridian)
-
-        for j in range(num_equator):
-            j_temp = 2*(j)-num_equator +1
-            scale_temp=(scale/2)*math.cos((1/2)*math.pi*(j_temp)/(num_equator+1))
-            height=scale/2*math.sin((1/2)*math.pi*(j_temp)/(num_equator+1))
-            x=round(cos*scale_temp,precision)
-            y=round(sin*scale_temp,precision)
-            z=height
-            if precision==0:
-                x=int(x)
-                y=int(y)
-                z=int(z)
-            delta_0.append([x,y,z])  
-    delta_0.append([0,0,-scale_half])
-    delta_0.append([0,0,scale_half])
+        scale_temp=(scale/2)*math.cos((1/2)*math.pi*(5-num_equator)/(num_equator+1))
+        x=round(cos*scale_temp,precision)
+        y=round(sin*scale_temp,precision)
+        print(delta_0.index([x,y,0]))
+        delta_0.remove([x,y,0])
+        print(delta_0.index([x,y,0]))
 
 def create_delta_1_sphere(num_equator, num_meridian):
     prod_temp=num_equator*num_meridian
-    for j in range(num_meridian):
-        for i in range(num_equator):
-            delta_1.append([i+j*num_equator,(i+j*num_equator+num_equator)%prod_temp])
-            if i<num_equator-1:
-                delta_1.append([i+j*num_equator,(i+j*num_equator+1)%prod_temp])
-                delta_1.append([i+j*num_equator,(i+j*num_equator+1+num_equator)%prod_temp])
-        delta_1.append([j*num_equator,prod_temp])
-        delta_1.append([num_equator*(j+1)-1,prod_temp+1])
+    for h in range(2):
+        print(len(delta_0))
+        h_mult=h*(num_equator*num_meridian+2)
+        print(h_mult)
+        for j in range(num_meridian):
+            for i in range(num_equator):
+                delta_1.append([i+j*num_equator,(i+j*num_equator+num_equator)%prod_temp])
+                if i<num_equator-1:
+                    delta_1.append([i+j*num_equator,(i+j*num_equator+1)%prod_temp])
+                    delta_1.append([i+j*num_equator,(i+j*num_equator+1+num_equator)%prod_temp])
+            delta_1.append([j*num_equator,prod_temp])
+            delta_1.append([num_equator*(j+1)-1,prod_temp+1])
 
     
 
@@ -258,7 +275,7 @@ def print_for_grapher(num_n,num_m,num_g):
             f.write(gluing_string.replace('.',','))
     if num_g==0:
         create_delta_0_sphere(num_n,num_m)
-        title='{}sphere_{}_{}.txt'.format(DEST,num_n,num_m)
+        title='{}grapher_double_sphere_{}_{}.txt'.format(DEST,num_n,num_m)
         f=open(title,'w')
         string=''
         count=0
@@ -339,7 +356,7 @@ def create_and_print(points_on_small_circle,points_on_large_circle,genus_of_surf
     # print()
     # print()
 
-    title='{}surface_genus_{}_circle_{}_{}.txt'.format(DEST,genus_of_surface,points_on_small_circle,points_on_large_circle)
+    title='{}doube_sphere_{}_{}.txt'.format(DEST,genus_of_surface,points_on_small_circle,points_on_large_circle)
     f=open(title,'w')
     str_delta_0='delta_0=[\n '
     for a in delta_0:

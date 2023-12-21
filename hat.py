@@ -8,7 +8,7 @@ import time
 DEST = '/Users/georgfrenck/sciebo/Math/Teaching/2023 WS/Softwarepraktikum/triangulations-of-surfaces/input/'
 
 # size of the circles:
-n=10  # points on small circles or number of "equators" for genus=0
+n=11  # points on small circles or number of "equators" for genus=0
 m=10      # points on large circles or number of "meridians" for genus=0
 
 # increase the genus of the surface
@@ -17,7 +17,7 @@ genus=0
 
 
 # Size of the canvas:
-scale=600
+scale=350
 
 
 # number of decimal places
@@ -92,6 +92,7 @@ def create_delta_0 (num_n, num_m,num_g):
                 x_temp=int(x_temp)
             delta_0.append([x_temp,delta_0[j][1],delta_0[j][2]])
     delta_0 = delta_0[num_m*num_n:]
+    
 
 
 
@@ -187,36 +188,78 @@ def create_delta_0_sphere(num_equator, num_meridian):
     if(precision==0):
         scale_half=int(scale_half)
 
-
+    
     for i in range(num_meridian):
         cos=math.cos(2*math.pi*(i+1)/num_meridian)
         sin=math.sin(2*math.pi*(i+1)/num_meridian)
 
+        height_mid=0
+
         for j in range(num_equator):
-            j_temp = 2*(j)-num_equator +1
+            j_temp = -j
             scale_temp=(scale/2)*math.cos((1/2)*math.pi*(j_temp)/(num_equator+1))
             height=scale/2*math.sin((1/2)*math.pi*(j_temp)/(num_equator+1))
             x=round(cos*scale_temp,precision)
             y=round(sin*scale_temp,precision)
-            z=height
+            z=height+height_mid
             if precision==0:
                 x=int(x)
                 y=int(y)
                 z=int(z)
             delta_0.append([x,y,z])  
-    delta_0.append([0,0,-scale_half])
-    delta_0.append([0,0,scale_half])
+    delta_0.append([0,0,-scale_half+height_mid])
+    # for i in range(num_meridian):
+    #     cos=math.cos(2*math.pi*(i+1)/num_meridian)
+    #     sin=math.sin(2*math.pi*(i+1)/num_meridian)
+    #     scale_temp=(scale/2)*math.cos((1/2)*math.pi*(5-num_equator)/(num_equator+1))
+    #     x=round(cos*scale_temp,precision)
+    #     y=round(sin*scale_temp,precision)
+    #     delta_0.reverse()
+    #     delta_0.remove([x,y,0])
+    #     delta_0.reverse()
+
+    for i in range(2*num_meridian):
+        cos=math.cos(math.pi*(i+1)/num_meridian)
+        sin=math.sin(math.pi*(i+1)/num_meridian)
+
+        height_mid=0
+        j_temp = 0
+        scale_temp=1.5*(scale/2)*math.cos((1/2)*math.pi*(j_temp)/(num_equator+1))
+        height=scale/2*math.sin((1/2)*math.pi*(j_temp)/(num_equator+1))
+        x=round(cos*scale_temp,precision)
+        y=round(sin*scale_temp,precision)
+        z=height+height_mid
+        if precision==0:
+            x=int(x)
+            y=int(y)
+            z=int(z)
+        delta_0.append([x,y,z]) 
 
 def create_delta_1_sphere(num_equator, num_meridian):
     prod_temp=num_equator*num_meridian
+    # print(len(delta_0))
+    # print(h_mult)
     for j in range(num_meridian):
         for i in range(num_equator):
             delta_1.append([i+j*num_equator,(i+j*num_equator+num_equator)%prod_temp])
             if i<num_equator-1:
                 delta_1.append([i+j*num_equator,(i+j*num_equator+1)%prod_temp])
                 delta_1.append([i+j*num_equator,(i+j*num_equator+1+num_equator)%prod_temp])
-        delta_1.append([j*num_equator,prod_temp])
-        delta_1.append([num_equator*(j+1)-1,prod_temp+1])
+        # delta_1.append([j*num_equator,prod_temp])
+        delta_1.append([num_equator*(j+1)-1,prod_temp])
+
+        # delta_1.append([5+j*num_equator,112])
+        out_temp=[(2*j),(2*j+1)%(2*num_meridian),(2*j+2)%(2*num_meridian)]
+        delta_1.append([j*num_equator,111+out_temp[0]])
+        delta_1.append([j*num_equator,111+out_temp[1]])
+        delta_1.append([j*num_equator,111+out_temp[2]])
+    for j in range(2*num_meridian):
+        out_temp=(j+1)%(2*num_meridian)
+        delta_1.append([111+j,111+out_temp])
+
+    for j in delta_1:
+        if delta_1.count(j)>1:
+            delta_1.remove(j)
 
     
 
@@ -258,7 +301,7 @@ def print_for_grapher(num_n,num_m,num_g):
             f.write(gluing_string.replace('.',','))
     if num_g==0:
         create_delta_0_sphere(num_n,num_m)
-        title='{}sphere_{}_{}.txt'.format(DEST,num_n,num_m)
+        title='{}grapher_double_sphere_{}_{}.txt'.format(DEST,num_n,num_m)
         f=open(title,'w')
         string=''
         count=0
@@ -303,8 +346,7 @@ def print_delta_2():
 
 # create_delta_0(n,m)
 
-def create_and_print(points_on_small_circle,points_on_large_circle,genus_of_surface):
-
+def create_and_print(points_on_small_circle,points_on_large_circle):
 
     start = time.time()
     points_left=[0,1,points_on_small_circle+1]
@@ -313,15 +355,9 @@ def create_and_print(points_on_small_circle,points_on_large_circle,genus_of_surf
     # print(points_left)
     # print(points_right)
 
-    if genus_of_surface>=1:
-        create_delta_0(points_on_small_circle,points_on_large_circle,genus_of_surface)
-        create_delta_1(points_on_small_circle,points_on_large_circle,genus_of_surface,points_left,points_right)
-        create_delta_2(points_on_small_circle*points_on_large_circle, genus_of_surface,points_left,points_right)
-
-    if genus_of_surface==0:
-        create_delta_0_sphere(points_on_small_circle,points_on_large_circle)
-        create_delta_1_sphere(points_on_small_circle,points_on_large_circle)
-        create_delta_2(points_on_large_circle*points_on_small_circle+2,0,0,0)
+    create_delta_0_sphere(points_on_small_circle,points_on_large_circle)
+    create_delta_1_sphere(points_on_small_circle,points_on_large_circle)
+    create_delta_2(len(delta_0),0,0,0)
     # The following only works for n,m<=10 or so, otherwise the terminal erases stuff.
     # print()
     # print()
@@ -339,7 +375,7 @@ def create_and_print(points_on_small_circle,points_on_large_circle,genus_of_surf
     # print()
     # print()
 
-    title='{}surface_genus_{}_circle_{}_{}.txt'.format(DEST,genus_of_surface,points_on_small_circle,points_on_large_circle)
+    title='{}hat.txt'.format(DEST,points_on_small_circle,points_on_large_circle)
     f=open(title,'w')
     str_delta_0='delta_0=[\n '
     for a in delta_0:
@@ -364,45 +400,15 @@ def create_and_print(points_on_small_circle,points_on_large_circle,genus_of_surf
     time_taken_seconds = math.floor(time_taken%60)
 
     print()
-    print('The data for a triangulation on the surface of genus {} with {} 0-simplices, {} 1-simplices and {} 2-simplices has been created in \n {}'.format(genus_of_surface,len(delta_0),len(delta_1),len(delta_2),title))
+    print('The data for a triangulation with {} 0-simplices, {} 1-simplices and {} 2-simplices has been created in \n {}'.format(len(delta_0),len(delta_1),len(delta_2),title))
     print()
-    print('Observe, that the Euler-Characteristic is given by {} which also equals 2-2g=2-2*{}={}.'.format(len(delta_0)-len(delta_1)+len(delta_2),genus_of_surface,2-2*genus_of_surface))
+    print('Observe, that the Euler-Characteristic is given by {}.'.format(len(delta_0)-len(delta_1)+len(delta_2)))
     print()
     print('By the way, this took {} minutes and {} seconds.'.format(time_taken_minutes,time_taken_seconds))
     print()
     print()
 
 
-
-# create_and_print(8,8,2)
-# create_and_print(8,8,3)
-# create_and_print(8,8,4)
-
-# create_and_print(8,12,2)
-# create_and_print(8,12,3)
-# create_and_print(8,12,4)
-
-
-# create_and_print(8,16,2)
-# create_and_print(8,16,3)
-# create_and_print(8,16,4)
-
-# create_and_print(10,12,2)
-# create_and_print(10,12,3)
-# create_and_print(10,12,4)
-
-# create_and_print(10,14,2)
-# create_and_print(10,14,3)
-# create_and_print(10,14,4)
-
-# create_and_print(10,16,2)
-# create_and_print(10,16,3)
-# create_and_print(10,16,4)
-
-# create_and_print(12,20,1)
-
-
-
-create_and_print(n,m,genus)
-print_for_grapher(n,m,genus)
+create_and_print(n,m)
+# print_for_grapher(n,m,genus)
 # print_delta_1()

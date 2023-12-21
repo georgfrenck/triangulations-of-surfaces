@@ -6,12 +6,12 @@ import time
 # Destination for files:
 DEST = '/Users/georgfrenck/sciebo/Math/Teaching/2023 WS/Softwarepraktikum/triangulations-of-surfaces/input/'
 
-# size of the circles:
+# size of the circles: DO NOT CHANGE IN THIS FILE !!!
 n=11                    # points on line
 m=33
 r=7                    # points on circles
 
-draw_mid=True       # toggle reasing the middle circle
+draw_mid=False       # toggle reasing the middle circle
 
 
 # Size of the canvas:
@@ -106,8 +106,11 @@ def create_delta_0 (num_n, num_m, num_r):
         
     if not draw_mid:
         for j in range(num_m):
-            mid_temp = int(num_n*j+round(num_n/2)-1-j)
-            delta_0.pop(mid_temp)
+            print(len(delta_0))
+            print(j*num_m+2-math.floor(3*j))
+            delta_0.pop(j*num_n+2-math.floor(3*j))
+            delta_0.pop(j*num_n+5-math.floor(3*j)-1)
+            delta_0.pop(j*num_n+8-math.floor(3*j)-2)
 
 
 
@@ -148,36 +151,42 @@ def create_delta_1(num_n, num_m,num_r):
 
     else:
         for i in range(num_m):
-            for j in range(num_n-2):
-                if j!=round(num_n/2)-2:
-                    delta_1.append([(num_n-1)*(i) + j, (num_n-1)*(i) + j + 1])
+            delta_1.append([8*(i) + 0, 8*(i) + 1])
+            delta_1.append([8*(i) + 2, 8*(i) + 3])
+            delta_1.append([8*(i) + 4, 8*(i) + 5])
+            delta_1.append([8*(i) + 6, 8*(i) + 7])
 
         # add large circles
 
         for i in range(num_m-1):
-            for j in range(num_n-2):
-                delta_1.append([(num_n-1)*(i) + j, ((num_n-1)*(i) + j + (num_n-1))%((num_n-1)*num_m)])
-                if j!=round(num_n/2)-2:
-                    delta_1.append([(num_n-1)*(i) + j, ((num_n-1)*(i) + j + (num_n-1) + 1)%((num_n-1)*num_m)])
-            delta_1.append([(num_n-1)*(i) + (num_n-1)-1, ((num_n-1)*(i) + (num_n-1)-1+ (num_n-1))%((num_n-1)*num_m)])
+            delta_1.append([8*i + 0, 8*i + 0+ 8])
+            delta_1.append([8*i + 1, 8*i + 1+ 8])
+            delta_1.append([8*i + 2, 8*i + 2+ 8])
+            delta_1.append([8*i + 3, 8*i + 3+ 8])
+            delta_1.append([8*i + 4, 8*i + 4+ 8])
+            delta_1.append([8*i + 5, 8*i + 5+ 8])
+            delta_1.append([8*i + 6, 8*i + 6+ 8])
+            delta_1.append([8*i + 7, 8*i + 7+ 8])
 
-        sign=(num_r%2)
+            delta_1.append([8*i + 0, 8*i + 1+ 8])
+            delta_1.append([8*i + 2, 8*i + 3+ 8])
+            delta_1.append([8*i + 4, 8*i + 5+ 8])
+            delta_1.append([8*i + 6, 8*i + 7+ 8])
 
-        for j in range(num_n-2):
-            if sign==0:
-                delta_1.append([(num_n-1)*(num_m-1) + j, j])
-                if j!=round(num_n/2)-1:
-                    delta_1.append([(num_n-1)*(num_m-1) + j, j+1])
-            else:
-                delta_1.append([(num_n-1)*(num_m-1) + j, (num_n-1)-1-j])
-                if j!=round(num_n/2)-2:
-                    delta_1.append([(num_n-1)*(num_m-1) + j, (num_n-1)-2-j])
+        delta_1.append([8*(num_m-1) + 0, 7])
+        delta_1.append([8*(num_m-1) + 1, 6])
+        delta_1.append([8*(num_m-1) + 2, 5])
+        delta_1.append([8*(num_m-1) + 3, 4])
+        delta_1.append([8*(num_m-1) + 4, 3])
+        delta_1.append([8*(num_m-1) + 5, 2])
+        delta_1.append([8*(num_m-1) + 6, 1])
+        delta_1.append([8*(num_m-1) + 7, 0])
+
+        delta_1.append([8*(num_m-1) + 0, 6])
+        delta_1.append([8*(num_m-1) + 2, 4])
+        delta_1.append([8*(num_m-1) + 4, 2])
+        delta_1.append([8*(num_m-1) + 6, 0])
                 
-        
-        if sign==0:
-            delta_1.append([(num_n-1)*num_m-1, (num_n-1)-1])
-        else:
-            delta_1.append([(num_n-1)*num_m-1, 0])        
 
 # Find 2 simplices comment if not absolutely necessary
 
